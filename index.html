@@ -9,60 +9,44 @@
   <script src="bower_components/angular-animate/angular-animate.min.js"></script>
   <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
   <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <script src="bower_components/angular-translate/angular-translate.js"></script>
+  <script src="js/app.js"></script>
   <script src="js/appController.js"></script>
+  <script src="js/dialogController.js"></script>
   <link rel="stylesheet" type="text/css" href="css/app.css">
   <!-- Odometr includes -->
   <link rel="stylesheet" href="http://github.hubspot.com/odometer/themes/odometer-theme-default.css" />
   <script src="http://github.hubspot.com/odometer/odometer.js"></script>
 </head>
+
 <body ng-controller="adminCtrl">
+  <!--- Header section -->
   <md-toolbar md-scroll-shrink>
     <div class="md-toolbar-tools">
-      <md-button ng-click="toggleLeft()">
-        <md-icon icon="bower_components/material-design-icons/navigation/drawable-hdpi/ic_menu_white_24dp.png"></md-icon>
-      </md-button>
-      <h2> {{title}} </h2>
+      <div layout="row" style="width:100%;">
+        <div flex>
+          <h2> {{'title' | translate}} </h2>
+        </div>
+        <div>
+          <md-select placeholder="Translate" ng-model="language" ng-change="changeLanguage()">
+            <md-option value="en">English</md-option>
+            <md-option value="de">Spanish</option>
+          </md-select>
+        </div>
+      </div>
     </div>
   </md-toolbar>
-  <md-sidenav class="md-sidenav-left md-whiteframe-z2" md-component-id="left">
-    <md-toolbar class="md-theme-indigo" ng-controller="LeftCtrl">
-    <div layout="row">
-      <div flex>
-      <span style="padding: 12%;" class="glyphicon glyphicon-arrow-left" aria-hidden="true" ng-click="close()"></span> 
-      </div><div flex>
-      <h1 class="md-toolbar-tools">Menu</h1>
-      </div></div>
-    </md-toolbar>
-    <md-content class="md-padding" ng-controller="LeftCtrl">
-       <md-list>
-         <md-item ng-repeat="item in menuItems"> 
-           <md-item-content>
-           <a href="{{url}}">
-           <div layout="row">
-             <div flex>
-               <span class="glyphicon {{item.icon}}" aria-hidden="true"></span> 
-             </div>
-             <div flex>
-               <span> {{item.name}} </span>
-             </div>
-           </div>
-           </a>
-           <hr/>
-           </md-item-content>
-          </md-item>
-       </md-list>
-    </md-content>
-  </md-sidenav>
 
   <!-- Grid for Dash board -->
   <md-content>
+  <md-card class="welcome-card"> {{ 'welcome' | translate  }} </md-card>
     <div layout="row" class="dashboard-grid">
      <div flex>
         <md-card class="grid-child">
           <div class="grid-child-1">
             <div id="box1" data-theme="default" class="odometer">00</div>
           </div>
-          <div class="grid-text"> Text1 </div>
+          <div class="grid-text"> {{'grid1' | translate}} </div>
         </md-card>
       </div>
       <div flex>
@@ -70,24 +54,35 @@
           <div class="grid-child-2">
             <div id="box2" data-theme="default" class="odometer">000000</div>
           </div>
-          <div class="grid-text"> Text2 </div>
-        </md-card>
-      </div>
-      <div flex>
-        <md-card class="grid-child">
-          <div class="grid-child-3">
-            <div id="box3" data-theme="default" class="odometer">0000</div>
-          </div>
-          <div class="grid-text"> Text3 </div>
+          <div class="grid-text"> {{'grid2' | translate}}  </div>
         </md-card>
       </div>
     </div>
+     <div flex>
+       <table class="table table-hover">
+          <thead>
+            <tr>
+              <th> {{'col1' | translate}} </th>
+              <th> {{'col2' | translate}} </th>
+              <th> {{'col3' | translate}} </th>
+              <th> {{'col4' | translate}} </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="song in data">
+              <td> {{song.name}} </td>
+              <td> <a target="_blank" href="{{song.link}}"> {{'play' | translate}} </a> </td>
+              <td> {{song.downloads}} </td>
+              <td>
+                <md-button ng-click="editSong($event, song)" class="md-fab md-mini md-primary" aria-label="Edit">
+                  <img src="/images/ic_edit_white_24dp.png" style="color: greenyellow;"></img>
+                </md-button> </td>
+            </tr>
+          </tbody>
+        </table>
+        <md-divider></md-divider>
+        <md-button ng-click="loadSongs();" class="md-raised md-primary load-more">Load more</md-button>
+     </div>
   </md-content>
-
-  <!-- Floating button at bottom right corner -->
-  <md-button id="addPopUp" class="md-fab md-raised" ng-click="showDialog($event)" aria-label="Add anything.. :)">
-    <md-tooltip> Yo!! Add tooltip here </md-tooltip>
-    <md-icon icon="bower_components/material-design-icons/content/svg/production/ic_add_24px.svg" style="width: 24px; height: 24px;"></md-icon>
-  </md-button>
 
 </html>

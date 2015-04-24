@@ -1,80 +1,74 @@
-var adminPanel = angular.module('adminPanel', ['ngMaterial'])
+'use strict';
 
-adminPanel.controller('loginCtrl', function($scope, $mdSidenav) {
-  $scope.logo = "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xfa1/v/t1.0-1/p160x160/1966841_10205564593336771_1131066954403916535_n.jpg?oh=e110c4b435cec1f8d2d99b8fad29f516&oe=55336522&__gda__=1428491118_1bfc83d6ec955ffa3107d05ea7629090";
-});
+angular.module('adminPanel.home', [
+  'ngMaterial',
+  'pascalprecht.translate',
+])
+.controller('adminCtrl',
+    function($scope, $mdDialog, $translate, $http) {
 
-adminPanel.controller('adminCtrl', function($scope, $mdSidenav, $mdDialog) {
-  $scope.title = 'Admin Panel';
+  $scope.albumcount = 0;
+  $scope.songcount = 0;
+  $scope.songLoadCount = 0;
+  $scope.data = [];
+  $scope.song;
+  $scope.language = 'en';
 
-  $scope.toggleLeft = function() {
-    $mdSidenav('left').toggle()
-        .then(function(){
-      $log.debug("toggle left is done");
+  /* Change locale. */
+  $scope.changeLanguage = function () {
+    $translate.use($scope.language);
+  };
+
+  /* Get Number of songs and albums */
+  $http.get('http://localhost:3000/api').
+      success(function(data, status, headers, config) {
+        $scope.albumcount = data.album;
+        $scope.songcount = data.songs;
+      }).
+      error(function(data, status, headers, config) {
+        window.console.log('error');
+      });
+
+
+  // Timer and values for dashboard grid.
+  setTimeout(function(){
+    document.getElementById('box1').innerHTML = $scope.albumcount;
+  }, 1000);
+
+  setTimeout(function(){
+    document.getElementById('box2').innerHTML = $scope.songcount;
+  }, 1000);
+
+  /* Loads songs. 50 in one go */
+  $scope.loadSongs = function() {
+    $http.get('http://localhost:3000/api/songs/'+$scope.songLoadCount).
+      success(function(data, status, headers, config) {
+        for (var i=0; i<data.length; i++) {
+          $scope.data.push(data[i]);
+        }
+        $scope.songLoadCount = $scope.songLoadCount+50;
+    }).
+    error(function(data, status, headers, config) {
+      window.console.log('error');
     });
   };
 
-  // Show dialog
-  $scope.showDialog = function(ev) {
-    window.console.log('in func');
+  /* Opens dialog to edit song */
+  $scope.editSong = function(ev, song) {
+    $scope.song = song;
     $mdDialog.show({
-     // controller: DialogController,
       templateUrl: 'dialog.tmpl.html',
-      targetEvent: ev
+      targetEvent: ev,
+      locals: {
+        song: $scope.song,
+        language: $scope.language
+      },
+      controller: 'DialogController'
     });
   };
+
+  /* Loads songs on page load */
+  $scope.loadSongs();
 });
 
-adminPanel.controller('LeftCtrl', function($scope, $timeout, $mdSidenav, $log) {
-  $scope.close = function() {
-    $mdSidenav('left').close()
-        .then(function(){
-      $log.debug("close LEFT is done");
-        });
-  };
 
-  // Icons at http://getbootstrap.com/components/
-  $scope.menuItems = [{
-    name : 'Home',
-    icon: 'glyphicon-home',
-    url: '#'
-  }, {
-    name : 'Settings',
-    icon: 'glyphicon-wrench',
-    url: '#apps'
-  }, {
-    name : 'LogOut',
-    icon: 'glyphicon-off',
-    url: '#'
-  }];
-});
-
-/**
-adminPanel.config(['$routeProvider', function($routeProvider) {
-  $routeProvider
-  .when('/', {
-      templateUrl : 'home.html',
-      controller: 'adminCtrl'
-  })
-  .when('/apps', {
-      templateUrl : 'apps.html',
-      controller: 'adminCtrl'
-  })
-  .otherwise({
-    redirectTo: '/'                 
-  });
-}]);
-*/
-
-// Timer and values for dashboard grid.
-setTimeout(function(){
-  document.getElementById('box1').innerHTML = 25;
-}, 1000);
-
-setTimeout(function(){
-  document.getElementById('box2').innerHTML = 456;
-}, 1000);
-
-setTimeout(function(){
-  document.getElementById('box3').innerHTML = 56;
-}, 1000);
